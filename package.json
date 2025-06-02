@@ -1,0 +1,33 @@
+{
+  "name": "review-assistant",
+  "version": "1.0.0",
+  "description": "AI-powered review generator for Google Maps",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dungpa45/5-star-rating.git"
+  },
+  "keywords": [
+    "5",
+    "star",
+    "rating"
+  ],
+  "author": "DungPA",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dungpa45/5-star-rating/issues"
+  },
+  "homepage": "https://github.com/dungpa45/5-star-rating#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.7",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
