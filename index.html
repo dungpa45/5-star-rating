@@ -26,18 +26,15 @@
                     <i class="fas fa-map-marker-alt"></i> Nhập URL Google Maps:
                 </label>
                 <div class="input-with-icon">
-                    <input type="text" id="map-url" placeholder="https://maps.app.goo.gl/...">
-                    <button id="generate-btn" class="generate-btn">
-                        <i class="fas fa-wand-magic-sparkles"></i> Tạo Đánh Giá
-                    </button>
+                    <input type="text" id="map-url" placeholder="https://maps.app.goo.gl/..." aria-label="Google Maps URL">
                 </div>
                 <div class="input-error" id="url-error"></div>
             </div>
 
             <div class="options">
                 <div class="form-group">
-                    <label for="style"><i class="fas fa-paint-brush"></i> Phong cách đánh giá</label>
-                    <select id="style" class="form-control">
+                    <label for="style" id="style-label"><i class="fas fa-paint-brush"></i> Phong cách đánh giá</label>
+                    <select id="style" class="form-control" aria-labelledby="style-label">
                         <option value="friendly">Thân thiện</option>
                         <option value="professional">Chuyên nghiệp</option>
                         <option value="enthusiastic">Nhiệt tình</option>
@@ -46,14 +43,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="language"><i class="fas fa-language"></i> Ngôn ngữ</label>
-                    <select id="language" class="form-control">
+                    <label for="language" id="language-label"><i class="fas fa-language"></i> Ngôn ngữ</label>
+                    <select id="language" class="form-control" aria-labelledby="language-label">
                         <option value="vi">Tiếng Việt</option>
                         <option value="en">English</option>
                     </select>
                 </div>
 
-                <button id="generate-btn" class="btn btn-primary">
+                <button id="generate-review-btn" class="btn btn-primary" aria-label="Generate review">
                     <i class="fas fa-magic"></i> Tạo đánh giá
                 </button>
             </div>
