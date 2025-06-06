@@ -1,126 +1,104 @@
-# Review Assistant
+# 5-Star Rating AI Flask App
 
-An AI-powered tool for generating authentic Google Maps reviews.
+A simple web application for generating 5-star Google Maps reviews using AI (OpenAI/GPT) in Vietnamese or English.
 
 ## Features
 
-- Generate natural-sounding 5-star reviews for Google Maps locations
-- Multiple review styles (friendly, professional, enthusiastic, concise)
-- Bilingual support (Vietnamese and English)
-- Dark/Light theme
-- Preview mode
-- Copy to clipboard functionality
-- Responsive design
-- Rate limiting and security features
+- 🌍 Input a Google Maps URL to extract the place name
+- 🤖 Generate AI-powered 5-star reviews in Vietnamese or English
+- ✍️ Choose review style: friendly, professional, enthusiastic, or concise
+- 📝 Session-based review storage
+- 📜 Logging to file
+
+## Tech Stack
+
+- **Backend**: Python 3.11, Flask
+- **AI**: g4f (OpenAI-compatible client)
+- **Logging**: Python logging with rotating file handler
 
 ## Prerequisites
 
-- Node.js 14.x or higher
-- npm 6.x or higher
+- Python 3.10+
+- Docker (optional, for containerization)
+- OpenAI-compatible API key (if required by your g4f client)
 
-## Installation
+## Project Structure
 
-1. Clone the repository:
+```
+5-star-rating/
+├── app.py              # Main Flask app
+├── requirements.txt    # Python dependencies
+├── Dockerfile          # Docker container definition
+├── app.log             # Log file (auto-generated)
+└── README.md           # This file
+```
+
+## Setup Instructions
+
+### 1. Clone the repository
+
 ```bash
-git clone https://github.com/dungpa45/5-star-rating.git
+git clone https://github.com/yourusername/5-star-rating.git
 cd 5-star-rating
 ```
 
-2. Install dependencies:
+### 2. Install dependencies
+
 ```bash
-npm install
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-3. Create a `.env` file in the root directory:
-```env
-NODE_ENV=development
-PORT=3000
-AI_API_URL=http://localhost:8080/v1/chat/completions
-AI_API_KEY=your_api_key_here
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX=100
-CORS_ORIGIN=*
-```
+### 3. Run the app
 
-## Development
-
-Start the development server:
 ```bash
-npm run dev
+python app.py
 ```
 
-The application will be available at `http://localhost:3000`.
+The app will be available at [http://localhost:3000](http://localhost:3000).
 
-## Production
+---
 
-Build and start the production server:
+## Docker Usage
+
+### 1. Build the Docker image
+
 ```bash
-npm start
+docker build -t 5-star-rating .
 ```
 
-## API Documentation
+### 2. Run the container
 
-### POST /api/generate-review
-
-Generates a review for a Google Maps location.
-
-**Request Body:**
-```json
-{
-  "mapUrl": "https://maps.google.com/...",
-  "prompt": "Review generation prompt"
-}
+```bash
+docker run -p 3000:3000 5-star-rating
 ```
 
-**Response:**
-```json
-{
-  "error": false,
-  "review": "Generated review text",
-  "placeInfo": {
-    "name": "Place name",
-    "coordinates": {
-      "lat": 0.0,
-      "lng": 0.0
-    },
-    "placeId": "place_id"
-  }
-}
-```
+---
 
-## Security Features
+## Environment Variables
 
-- Helmet.js for security headers
-- Rate limiting
-- CORS configuration
-- Input validation
-- Environment variable validation
-- Request logging
-- Error handling
+- Edit `app.py` and set a secure `app.secret_key` before deploying to production.
 
-## Code Quality
+---
 
-- ESLint configuration
-- Consistent code style
-- Error handling
-- Logging
-- Documentation
+## Example Usage
 
-## Contributing
+1. Open the app in your browser.
+2. Paste a Google Maps URL.
+3. Select language and style.
+4. Click "Generate Review" to get an AI-written 5-star review.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+---
 
 ## License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+MIT License
+
+---
 
 ## Acknowledgments
 
-- [Express.js](https://expressjs.com/)
-- [Font Awesome](https://fontawesome.com/)
-- [Animate.css](https://animate.style/)
-- [Google Maps Platform](https://developers.google.com/maps)
+- [Flask](https://flask.palletsprojects.com/)
+- [g4f](https://github.com/xtekky/gpt4free)
+- [OpenAI](https://openai.com/)

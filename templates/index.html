@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Star Rating</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <h1>5 <i class="fas fa-star"></i> RATING </h1>
+                <button id="dark-mode-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Chế độ tối</span>
+                </button>
+            </div>
+            <h4>Công cụ tạo đánh giá 5 sao tự động cho Google Maps</h4>
+        </header>
+
+        <div class="main-form">
+            <div class="input-group">
+                <label for="map-url"><i class="fas fa-map-marker-alt"></i> Nhập URL Google Maps:</label>
+                <input type="text" id="map-url" placeholder="https://maps.app.goo.gl/...">
+                <button id="generate-btn">
+                    <i class="fas fa-magic"></i> Tạo Đánh Giá
+                </button>
+            </div>
+            <div id="error-message" style="display:none;color:#d93025;font-weight:bold;margin-bottom:10px;"></div>
+
+            <div class="options">
+                <div class="option-group">
+                    <label for="language"><i class="fas fa-language"></i> Ngôn ngữ:</label>
+                    <select id="language">
+                        <option value="vi">Tiếng Việt</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label for="style"><i class="fas fa-paint-brush"></i> Phong cách đánh giá:</label>
+                    <select id="style">
+                        <option value="friendly">Thân thiện, đời thường</option>
+                        <option value="professional">Chuyên nghiệp, chi tiết</option>
+                        <option value="enthusiastic">Nhiệt tình, hào hứng</option>
+                        <option value="concise">Ngắn gọn, súc tích</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>AI đang tạo đánh giá phù hợp...</p>
+        </div>
+
+        <div class="result-container" id="result-container" style="display: none;">
+            <h2><i class="fas fa-map-pin"></i> Đánh giá mẫu cho: <span id="place-name"></span></h2>
+            <div class="review-box">
+                <div class="review-content" id="review-content"></div>
+                <div class="review-actions">
+                    <button id="copy-btn">
+                        <i class="fas fa-copy"></i> Sao chép
+                    </button>
+                    <button id="rewrite-btn">
+                        <i class="fas fa-redo"></i> Viết lại
+                    </button>
+                    <button id="new-review-btn">
+                        <i class="fas fa-plus"></i> Tạo mới
+                    </button>
+                    <button id="edit-btn">
+                        <i class="fas fa-pen"></i> Sửa
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 5-Star Rating - Công cụ hỗ trợ tạo đánh giá chất lượng</p>
+            <div class="theme-info">
+                <span>Chế độ hiện tại: </span>
+                <span id="theme-indicator">Sáng</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
