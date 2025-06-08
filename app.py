@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, g
 from g4f.client import AsyncClient
 import re
 import time
@@ -6,6 +6,8 @@ import urllib.parse
 import asyncio
 import logging
 from logging.handlers import RotatingFileHandler
+from functools import wraps
+import hashlib
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Replace with a secure random key in production
@@ -18,6 +20,41 @@ logging.basicConfig(
     handlers=[handler]
 )
 logger = logging.getLogger(__name__)
+
+# --- Rate limiting setup ---
+RATE_LIMIT = 5  # max requests
+RATE_PERIOD = 60  # seconds
+
+def get_remote_addr():
+    if request.headers.get('X-Forwarded-For'):
+        return request.headers.get('X-Forwarded-For').split(',')[0].strip()
+    return request.remote_addr or 'unknown'
+
+def rate_limited():
+    ip = get_remote_addr()
+    now = int(time.time())
+    key = f"rl_{ip}"
+    history = session.get(key, [])
+    # Remove old timestamps
+    history = [t for t in history if now - t < RATE_PERIOD]
+    if len(history) >= RATE_LIMIT:
+        return True
+    history.append(now)
+    session[key] = history
+    session.modified = True
+    return False
+
+def limit_api(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if rate_limited():
+            logger.warning(f"Rate limit exceeded for {get_remote_addr()}")
+            return jsonify({
+                'success': False,
+                'error': f'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau {RATE_PERIOD} giây.'
+            }), 429
+        return f(*args, **kwargs)
+    return decorated
 
 # Hàm trích xuất tên địa điểm từ URL
 def extract_place_name(url):
@@ -72,6 +109,29 @@ def extract_place_name_from_prompt(prompt):
 def is_google_maps_url(url):
     return url and ('google.com/maps' in url or 'maps.app.goo.gl' in url)
 
+# Simple in-memory cache (dictionary)
+REVIEW_CACHE = {}
+CACHE_TTL = 3600  # seconds
+
+def make_cache_key(place_name, language, style):
+    key_str = f"{place_name}|{language}|{style}"
+    return hashlib.sha256(key_str.encode()).hexdigest()
+
+def get_cached_review(place_name, language, style):
+    key = make_cache_key(place_name, language, style)
+    entry = REVIEW_CACHE.get(key)
+    if entry:
+        review, timestamp = entry
+        if time.time() - timestamp < CACHE_TTL:
+            return review
+        else:
+            del REVIEW_CACHE[key]
+    return None
+
+def set_cached_review(place_name, language, style, review):
+    key = make_cache_key(place_name, language, style)
+    REVIEW_CACHE[key] = (review, time.time())
+
 # Route chính
 @app.route('/',methods=["GET","POST"])
 def index():
@@ -79,6 +139,7 @@ def index():
 
 # API tạo đánh giá
 @app.route('/generate-review', methods=['POST'])
+@limit_api
 def generate_review():
     data = request.json
     map_url = data.get('map_url')
@@ -97,11 +158,26 @@ def generate_review():
     
     # Trích xuất tên địa điểm
     place_name = extract_place_name(map_url) or "địa điểm này"
-    
+
+    # Check cache first
+    cached_review = get_cached_review(place_name, language, style)
+    if cached_review:
+        logger.info(f"Cache hit for '{place_name}'")
+        session['review'] = {
+            'place_name': place_name,
+            'review': cached_review
+        }
+        return jsonify({
+            'success': True,
+            'place_name': place_name,
+            'review': cached_review
+        })
+
     # Tạo đánh giá bằng AI (async)
     try:
         review = asyncio.run(generate_ai_review(place_name, language, style))
         logger.info(f"Generated review for '{place_name}'")
+        set_cached_review(place_name, language, style, review)
         session['review'] = {
             'place_name': place_name,
             'review': review
