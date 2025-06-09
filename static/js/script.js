@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const placeNameElement = document.getElementById('place-name');
     const loadingIndicator = document.getElementById('loading');
     const darkModeToggle = document.getElementById('dark-mode-toggle');
-    const themeIndicator = document.getElementById('theme-indicator');
     const body = document.body;
     const editBtn = document.getElementById('edit-btn');
     let isEditing = false;
@@ -17,11 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function initDarkMode() {
         const isDarkMode = localStorage.getItem('darkMode') === 'true';
         body.classList.toggle('dark-mode', isDarkMode);
-        darkModeToggle.innerHTML = isDarkMode ? 
-            '<i class="fas fa-sun"></i><span>Chế độ sáng</span>' : 
-            '<i class="fas fa-moon"></i><span>Chế độ tối</span>';
-        themeIndicator.textContent = isDarkMode ? 'Tối' : 'Sáng';
-        themeIndicator.style.color = isDarkMode ? '#8ab4f8' : '#4285F4';
     }
     
     // Chuyển đổi Dark Mode
@@ -29,16 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const isDarkMode = !body.classList.contains('dark-mode');
         body.classList.toggle('dark-mode', isDarkMode);
         localStorage.setItem('darkMode', isDarkMode);
-        
-        if (isDarkMode) {
-            darkModeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Chế độ sáng</span>';
-            themeIndicator.textContent = 'Tối';
-            themeIndicator.style.color = '#8ab4f8';
-        } else {
-            darkModeToggle.innerHTML = '<i class="fas fa-moon"></i><span>Chế độ tối</span>';
-            themeIndicator.textContent = 'Sáng';
-            themeIndicator.style.color = '#4285F4';
-        }
     });
     
     // Khởi tạo

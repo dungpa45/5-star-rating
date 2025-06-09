@@ -215,7 +215,7 @@ button:active {
     white-space: pre-line;
     margin-bottom: 25px;
     line-height: 1.7;
-    font-size: 16px;
+    font-size: 17px;
 }
 
 .review-actions {
@@ -330,3 +330,41 @@ footer {
     background: #f0f8ff;
     box-shadow: 0 0 0 2px #4285f433;
 }
+
+/* Highlighted place name in result */
+#place-name {
+    color: #fff;
+    font-weight: bold;
+    font-size: 1em;
+    background: linear-gradient(90deg, #06e269 0%, #4285f4 100%);
+    padding: 6px 13px;
+    border-radius: 24px;
+    margin-left: 10px;
+    box-shadow: 0 4px 10px #fbbc0533, 0 1.5px 8px #4285f433;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    border: 2px solid #fffbe7;
+    text-shadow: 0 2px 8px #4285f455, 0 1px 2px #fbbc0555;
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+    vertical-align: middle;
+    position: relative;
+    z-index: 1;
+}
+
+/* Add a subtle glow effect on hover */
+#place-name:hover {
+    box-shadow: 0 6px 24px #fbbc0577, 0 2px 12px #4285f477;
+    background: linear-gradient(90deg, #4285f4 0%, #06e269 100%);
+    color: #000;
+}
+
+/* Responsive adjustments for place name */
+@media (max-width: 600px) {
+    #place-name {
+        font-size: 1.05em;
+        padding: 5px 10px;
+        border-radius: 16px;
+        margin-left: 4px;
+    }
+}
+

@@ -8,6 +8,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from functools import wraps
 import hashlib
+import requests
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Replace with a secure random key in production
@@ -107,30 +108,42 @@ def extract_place_name_from_prompt(prompt):
     return match.group(1) if match else "địa điểm này"
 
 def is_google_maps_url(url):
-    return url and ('google.com/maps' in url or 'maps.app.goo.gl' in url)
+    if 'google.com/maps' in url:
+        return url
+    elif 'maps.app.goo.gl' in url or 'goo.gl/maps' in url:
+        # Handle shortened URLs
+        try:
+            res = requests.get(url, allow_redirects=True)
+            if res.status_code == 200:
+                return res.url
+        except requests.RequestException as e:
+            logger.error(f"Error fetching URL: {e}")
+            return False
+    else:
+        return False
 
 # Simple in-memory cache (dictionary)
-REVIEW_CACHE = {}
-CACHE_TTL = 3600  # seconds
+# REVIEW_CACHE = {}
+# CACHE_TTL = 3600  # seconds
 
-def make_cache_key(place_name, language, style):
-    key_str = f"{place_name}|{language}|{style}"
-    return hashlib.sha256(key_str.encode()).hexdigest()
+# def make_cache_key(place_name, language, style):
+#     key_str = f"{place_name}|{language}|{style}"
+#     return hashlib.sha256(key_str.encode()).hexdigest()
 
-def get_cached_review(place_name, language, style):
-    key = make_cache_key(place_name, language, style)
-    entry = REVIEW_CACHE.get(key)
-    if entry:
-        review, timestamp = entry
-        if time.time() - timestamp < CACHE_TTL:
-            return review
-        else:
-            del REVIEW_CACHE[key]
-    return None
+# def get_cached_review(place_name, language, style):
+#     key = make_cache_key(place_name, language, style)
+#     entry = REVIEW_CACHE.get(key)
+#     if entry:
+#         review, timestamp = entry
+#         if time.time() - timestamp < CACHE_TTL:
+#             return review
+#         else:
+#             del REVIEW_CACHE[key]
+#     return None
 
-def set_cached_review(place_name, language, style, review):
-    key = make_cache_key(place_name, language, style)
-    REVIEW_CACHE[key] = (review, time.time())
+# def set_cached_review(place_name, language, style, review):
+#     key = make_cache_key(place_name, language, style)
+#     REVIEW_CACHE[key] = (review, time.time())
 
 # Route chính
 @app.route('/',methods=["GET","POST"])
@@ -143,11 +156,6 @@ def index():
 def generate_review():
     data = request.json
     map_url = data.get('map_url')
-    language = data.get('language', 'vi')
-    style = data.get('style', 'friendly')
-
-    logger.info(f"Received /generate-review request: url={map_url}, lang={language}, style={style}")
-
     # Validate Google Maps URL
     if not is_google_maps_url(map_url):
         logger.warning(f"Invalid Google Maps URL: {map_url}")
@@ -155,29 +163,35 @@ def generate_review():
             'success': False,
             'error': 'Vui lòng nhập đúng URL Google Maps.'
         }), 400
+    else:
+        map_url = is_google_maps_url(map_url)
+    language = data.get('language', 'vi')
+    style = data.get('style', 'friendly')
+
+    logger.info(f"Received /generate-review request: url={map_url}, lang={language}, style={style}")
     
     # Trích xuất tên địa điểm
     place_name = extract_place_name(map_url) or "địa điểm này"
 
     # Check cache first
-    cached_review = get_cached_review(place_name, language, style)
-    if cached_review:
-        logger.info(f"Cache hit for '{place_name}'")
-        session['review'] = {
-            'place_name': place_name,
-            'review': cached_review
-        }
-        return jsonify({
-            'success': True,
-            'place_name': place_name,
-            'review': cached_review
-        })
+    # cached_review = get_cached_review(place_name, language, style)
+    # if cached_review:
+    #     logger.info(f"Cache hit for '{place_name}'")
+    #     session['review'] = {
+    #         'place_name': place_name,
+    #         'review': cached_review
+    #     }
+    #     return jsonify({
+    #         'success': True,
+    #         'place_name': place_name,
+    #         'review': cached_review
+    #     })
 
     # Tạo đánh giá bằng AI (async)
     try:
         review = asyncio.run(generate_ai_review(place_name, language, style))
         logger.info(f"Generated review for '{place_name}'")
-        set_cached_review(place_name, language, style, review)
+        # set_cached_review(place_name, language, style, review)
         session['review'] = {
             'place_name': place_name,
             'review': review
