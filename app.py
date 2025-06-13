@@ -64,6 +64,10 @@ def extract_place_name(url):
             parts = url.split('maps/place/')[1].split('/')
             name = re.sub(r'\+', ' ', parts[0])
             return urllib.parse.unquote(name)
+        elif '/maps?q=' in url:
+            query = url.split('/maps?q=')[1].split(',')[0]
+            name = re.sub(r'\+', ' ', query)
+            return urllib.parse.unquote(name)
         return None
     except:
         return None
