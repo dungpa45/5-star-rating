@@ -103,8 +103,10 @@ def create_ai_prompt(place_name, language, style):
     prompt += '\n\nYêu cầu: \n'
     prompt += '1. Đảm bảo tự nhiên, không lặp lại máy móc\n'
     prompt += '2. Nhấn mạnh ưu điểm nhưng không quá chung chung\n'
-    prompt += '3. Có thể thêm 1-2 chi tiết cụ thể (món ngon, dịch vụ tốt, không gian đẹp...)'
-    
+    prompt += '3. Có thể thêm 1-2 chi tiết cụ thể (món ngon, dịch vụ tốt, không gian đẹp...)\n'
+    prompt += '4. Viết như trải nghiệm thực tế của bản thân, tránh quá chung chung hoặc quảng cáo lộ liễu.\n'
+    prompt += '5. Nếu phù hợp, có thể thêm một gợi ý nhỏ để địa điểm hoàn thiện hơn (nhưng vẫn giữ đánh giá 5 sao và tích cực).\n'
+    prompt += '6. Viết để giúp người đọc Google Maps dễ hình dung về địa điểm.\n'
     return prompt
 
 def extract_place_name_from_prompt(prompt):

@@ -366,5 +366,14 @@ footer {
         border-radius: 16px;
         margin-left: 4px;
     }
+    .review-actions {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    .review-actions button {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
