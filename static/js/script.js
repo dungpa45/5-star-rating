@@ -27,6 +27,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Khởi tạo
     initDarkMode();
+
+    // Enter để submit
+    document.getElementById('map-url').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') generateBtn.click();
+    });
     
     // Tạo đánh giá
     generateBtn.addEventListener('click', async function() {

@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, jsonify, session, g
-from g4f.client import AsyncClient
+from g4f.client import Client
+from g4f.Provider import PollinationsAI, Yqcloud, Perplexity, CohereForAI_C4AI_Command, DeepInfra, OperaAria
 import re
 import time
 import urllib.parse
-import asyncio
 import logging
 from logging.handlers import RotatingFileHandler
 from functools import wraps
@@ -72,15 +72,45 @@ def extract_place_name(url):
     except:
         return None
 
-# Hàm tạo đánh giá AI (async)
-async def generate_ai_review(place_name, language, style):
+PROVIDERS = [PollinationsAI, Perplexity, Yqcloud, CohereForAI_C4AI_Command, DeepInfra, OperaAria]
+
+ERROR_PATTERNS = [
+    "authentication error", "no api key", "api key", "auth",
+    "rate limit", "too many requests", "quota exceeded",
+    "i'm sorry", "i cannot", "i can't help",
+    "access denied", "forbidden", "unauthorized",
+    "service unavailable", "internal server error",
+    "not available", "try again later",
+]
+
+def is_valid_review(text):
+    if not text or len(text.strip()) < 20:
+        return False
+    lower = text.lower()
+    return not any(p in lower for p in ERROR_PATTERNS)
+
+def generate_ai_review(place_name, language, style):
     prompt = create_ai_prompt(place_name, language, style)
-    client = AsyncClient()
-    response = await client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return response.choices[0].message.content
+    for provider in PROVIDERS:
+        start = time.time()
+        try:
+            client = Client(provider=provider)
+            response = client.chat.completions.create(
+                model='openai',
+                messages=[{"role": "user", "content": prompt}]
+            )
+            elapsed = round(time.time() - start, 2)
+            content = response.choices[0].message.content
+            model = getattr(response, 'model', 'unknown')
+            if is_valid_review(content):
+                logger.info(f"Provider {provider.__name__} | model={model} | time={elapsed}s")
+                return content
+            logger.warning(f"Provider {provider.__name__} | model={model} | time={elapsed}s | invalid response: {content[:100]}")
+        except Exception as e:
+            elapsed = round(time.time() - start, 2)
+            logger.warning(f"Provider {provider.__name__} | time={elapsed}s | error: {e}")
+        continue
+    raise Exception("Tất cả provider AI đều không khả dụng. Vui lòng thử lại sau.")
 
 def create_ai_prompt(place_name, language, style):
     language_names = {
@@ -195,7 +225,7 @@ def generate_review():
 
     # Tạo đánh giá bằng AI (async)
     try:
-        review = asyncio.run(generate_ai_review(place_name, language, style))
+        review = generate_ai_review(place_name, language, style)
         logger.info(f"Generated review for '{place_name}'")
         # set_cached_review(place_name, language, style, review)
         session['review'] = {

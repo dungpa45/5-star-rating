@@ -29,6 +29,7 @@ A simple web application for generating 5-star Google Maps reviews using AI (Ope
 ├── app.py              # Main Flask app
 ├── requirements.txt    # Python dependencies
 ├── Dockerfile          # Docker container definition
+├── .dockerignore       # Files excluded from Docker build
 ├── app.log             # Log file (auto-generated)
 └── README.md           # This file
 ```
@@ -71,7 +72,7 @@ docker build -t 5-star-rating .
 ### 2. Run the container
 
 ```bash
-docker run -p 3000:3000 5-star-rating
+docker run -d --name 5-star-rating -p 3000:3000 --restart unless-stopped 5-star-rating
 ```
 
 ---
@@ -87,7 +88,7 @@ docker run -p 3000:3000 5-star-rating
 1. Open the app in your browser.
 2. Paste a Google Maps URL.
 3. Select language and style.
-4. Click "Generate Review" to get an AI-written 5-star review.
+4. Press **Enter** or click "Generate Review" to get an AI-written 5-star review.
 
 ---
 
