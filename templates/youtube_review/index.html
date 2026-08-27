@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Review</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; min-height: 100vh; }
+        .container { max-width: 720px; margin: 0 auto; padding: 32px 16px; }
+        header { text-align: center; margin-bottom: 32px; }
+        header h1 { font-size: 2rem; color: #ff0000; }
+        header h1 i { color: #ff0000; }
+        header p { color: #aaa; margin-top: 6px; }
+        .card { background: #1a1a1a; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 6px; font-size: 0.9rem; color: #bbb; }
+        input, select { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #333; background: #111; color: #e0e0e0; font-size: 1rem; margin-bottom: 14px; }
+        input:focus, select:focus { outline: none; border-color: #ff0000; }
+        .options { display: flex; gap: 16px; }
+        .options .opt { flex: 1; }
+        button.primary { width: 100%; padding: 12px; background: #ff0000; color: #fff; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        button.primary:hover { background: #cc0000; }
+        button.primary:disabled { background: #555; cursor: not-allowed; }
+        .error { color: #ff6b6b; font-size: 0.9rem; margin-bottom: 10px; display: none; }
+        .loading { text-align: center; padding: 20px; display: none; }
+        .spinner { width: 36px; height: 36px; border: 4px solid #333; border-top-color: #ff0000; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .result { display: none; }
+        .video-info { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+        .video-info img { width: 120px; border-radius: 6px; flex-shrink: 0; }
+        .video-info .title { font-weight: 600; font-size: 1rem; color: #fff; }
+        .review-box { background: #111; border-radius: 8px; padding: 16px; font-size: 0.97rem; line-height: 1.7; white-space: pre-wrap; color: #e0e0e0; margin-bottom: 14px; outline: none; }
+        .review-box.editing { border: 1px dashed #ff0000; background: #1a0000; }
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .actions button { flex: 1; padding: 9px; border-radius: 8px; border: 1px solid #333; background: #222; color: #e0e0e0; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+        .actions button:hover { background: #333; }
+        .actions button.active { background: #ff0000; border-color: #ff0000; color: #fff; }
+        footer { text-align: center; color: #555; font-size: 0.85rem; margin-top: 32px; }
+        footer a { color: #888; text-decoration: none; }
+        footer a:hover { color: #ff0000; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1><i class="fab fa-youtube"></i> YouTube Review</h1>
+        <p>Tạo bình luận tích cực cho video YouTube bằng AI</p>
+    </header>
+
+    <div class="card">
+        <label for="youtube-url"><i class="fas fa-link"></i> URL Video YouTube</label>
+        <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=...">
+
+        <div class="options">
+            <div class="opt">
+                <label for="language"><i class="fas fa-language"></i> Ngôn ngữ</label>
+                <select id="language">
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <div class="opt">
+                <label for="style"><i class="fas fa-paint-brush"></i> Phong cách</label>
+                <select id="style">
+                    <option value="friendly">Thân thiện</option>
+                    <option value="professional">Chuyên nghiệp</option>
+                    <option value="enthusiastic">Nhiệt tình</option>
+                    <option value="concise">Ngắn gọn</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="error" id="error-msg"></div>
+        <button class="primary" id="generate-btn"><i class="fas fa-magic"></i> Tạo Bình Luận</button>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>AI đang tạo bình luận...</p>
+    </div>
+
+    <div class="card result" id="result">
+        <div class="video-info">
+            <img id="video-thumb" src="" alt="thumbnail">
+            <div class="title" id="video-title"></div>
+        </div>
+        <div class="review-box" id="review-content"></div>
+        <div class="actions">
+            <button id="copy-btn"><i class="fas fa-copy"></i> Sao chép</button>
+            <button id="edit-btn"><i class="fas fa-pen"></i> Sửa</button>
+            <button id="rewrite-btn"><i class="fas fa-redo"></i> Viết lại</button>
+            <button id="new-btn"><i class="fas fa-plus"></i> Tạo mới</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const btn = document.getElementById('generate-btn');
+const rewriteBtn = document.getElementById('rewrite-btn');
+const copyBtn = document.getElementById('copy-btn');
+const editBtn = document.getElementById('edit-btn');
+const newBtn = document.getElementById('new-btn');
+const errorMsg = document.getElementById('error-msg');
+const loading = document.getElementById('loading');
+const result = document.getElementById('result');
+const reviewContent = document.getElementById('review-content');
+let isEditing = false;
+
+function setEditing(on) {
+    isEditing = on;
+    reviewContent.contentEditable = on ? 'true' : 'false';
+    reviewContent.classList.toggle('editing', on);
+    editBtn.classList.toggle('active', on);
+    editBtn.innerHTML = on ? '<i class="fas fa-save"></i> Lưu' : '<i class="fas fa-pen"></i> Sửa';
+    if (on) reviewContent.focus();
+}
+
+async function generate(previousReview = null) {
+    const url = document.getElementById('youtube-url').value.trim();
+    const language = document.getElementById('language').value;
+    const style = document.getElementById('style').value;
+
+    errorMsg.style.display = 'none';
+    if (!url) { showError('Vui lòng nhập URL YouTube.'); return; }
+
+    setLoading(true);
+    try {
+        const body = { youtube_url: url, language, style };
+        if (previousReview) body.previous_review = previousReview;
+
+        const res = await fetch('/youtube/generate-review', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!data.success) { showError(data.error); return; }
+        document.getElementById('video-title').textContent = data.video_title;
+        document.getElementById('video-thumb').src = `https://img.youtube.com/vi/${data.video_id}/mqdefault.jpg`;
+        reviewContent.textContent = data.review;
+        setEditing(false);
+        result.style.display = 'block';
+    } catch (e) {
+        showError('Lỗi kết nối. Vui lòng thử lại.');
+    } finally {
+        setLoading(false);
+    }
+}
+
+function showError(msg) { errorMsg.textContent = msg; errorMsg.style.display = 'block'; }
+function setLoading(on) {
+    loading.style.display = on ? 'block' : 'none';
+    btn.disabled = on;
+    if (on) result.style.display = 'none';
+}
+
+btn.addEventListener('click', () => generate());
+document.getElementById('youtube-url').addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+rewriteBtn.addEventListener('click', () => {
+    const prev = reviewContent.textContent.trim();
+    generate(prev || null);
+});
+editBtn.addEventListener('click', () => setEditing(!isEditing));
+newBtn.addEventListener('click', () => {
+    result.style.display = 'none';
+    setEditing(false);
+    document.getElementById('youtube-url').value = '';
+    document.getElementById('youtube-url').focus();
+});
+copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(reviewContent.textContent);
+    copyBtn.innerHTML = '<i class="fas fa-check"></i> Đã sao chép';
+    setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i> Sao chép', 2000);
+});
+</script>
+</body>
+</html>
