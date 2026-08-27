@@ -76,13 +76,15 @@ def generate_review(video_title, language, style, previous_review=None):
         'professional': 'chuyên nghiệp, phân tích sâu như một nhà phê bình',
         'enthusiastic': 'nhiệt tình, hào hứng với nhiều cảm xúc tích cực',
         'concise': 'ngắn gọn súc tích trong 1-2 câu',
+        'nostalgic': 'hoài niệm, cảm xúc, gợi nhớ kỷ niệm',
     }
     lang_map = {'vi': 'tiếng Việt', 'en': 'English'}
     persona_map = {
-        'friendly': 'một người xem đã theo dõi kênh lâu năm',
-        'professional': 'một nhà phê bình nội dung chuyên nghiệp',
-        'enthusiastic': 'một fan hào hứng vừa xem xong video',
-        'concise': 'một người xem bận rộn muốn chia sẻ nhanh',
+        'friendly': 'một người xem vừa xem xong và muốn chia sẻ cảm nhận thật',
+        'professional': 'một nhà phê bình nội dung đang đánh giá chất lượng video',
+        'enthusiastic': 'một người xem bị cuốn hút hoàn toàn bởi nội dung video',
+        'concise': 'một người xem bận rộn muốn chia sẻ nhanh cảm nhận',
+        'nostalgic': 'một người xem liên tưởng nội dung video với kỷ niệm cá nhân của mình',
     }
 
     is_vague = len(video_title.split()) <= 3 or re.search(r'#\d+|vlog|ep\.?\s*\d+', video_title, re.I)

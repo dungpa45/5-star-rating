@@ -34,6 +34,7 @@ PERSONA_MAP = {
     'professional': 'một nhà phê bình ẩm thực/dịch vụ chuyên nghiệp',
     'enthusiastic': 'một người yêu thích khám phá địa điểm mới',
     'concise': 'một khách hàng bận rộn muốn chia sẻ nhanh',
+    'nostalgic': 'một người đã từng đến đây nhiều năm trước và quay lại thăm',
 }
 
 AVOID_WORDS = "tuyệt vời, xuất sắc, hoàn hảo, amazing, perfect, excellent"
@@ -117,6 +118,7 @@ def create_ai_prompt(place_name, language, style, category='other', previous_rev
         'professional': 'chuyên nghiệp, khách quan như một nhà phê bình',
         'enthusiastic': 'nhiệt tình, hào hứng với nhiều cảm xúc tích cực',
         'concise': 'ngắn gọn súc tích trong 1-2 câu',
+        'nostalgic': 'hoài niệm, cảm xúc, gợi nhớ kỷ niệm và sự thay đổi theo thời gian',
     }
 
     prompt = f'Hãy viết một đánh giá 5 sao cho "{place_name}" trên Google Maps.\n'
